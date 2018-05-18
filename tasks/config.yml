@@ -1,0 +1,23 @@
+---
+
+- name: create zabbix agent optional config directory
+  file:
+    path: "{{ zabbix_agent_config_include }}"
+    state: directory
+  tags:
+    - zabbixclient
+
+#- name: copy additional configs
+#  template: src={{ item }} dest={{ zabbix_agent_config_include }}/
+#  with_items: zabbix_agent_config_include_confs
+#  notify: restart zabbix-agent
+#  tags:
+#    - zabbixclient
+
+- name: configure zabbix agent
+  template:
+    src: zabbix_agentd.conf.j2
+    dest: /etc/zabbix/zabbix_agentd.conf
+  notify: "restart zabbix-agent"
+  tags:
+    - zabbixclient

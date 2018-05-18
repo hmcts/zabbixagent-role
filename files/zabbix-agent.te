@@ -1,0 +1,32 @@
+module zabbix-agent 1.1;
+
+require {
+        type user_tmp_t;
+        type ldconfig_exec_t;
+        type kernel_t;
+        type brlp_port_t;
+        type etc_t;
+        type ntop_port_t;
+        class tcp_socket name_connect;
+        class system module_request;
+        class file {open execute write};
+        type tmp_t;
+        type zabbix_agent_t;
+        type unreserved_port_t;
+        class tcp_socket name_connect;
+        class unix_dgram_socket create;
+        class dir write;
+        class process setrlimit;
+}
+
+#============= zabbix_agent_t ==============
+allow zabbix_agent_t brlp_port_t:tcp_socket name_connect;
+allow zabbix_agent_t unreserved_port_t:tcp_socket name_connect;
+allow zabbix_agent_t self:unix_dgram_socket create;
+allow zabbix_agent_t kernel_t:system module_request;
+allow zabbix_agent_t etc_t:file write;
+allow zabbix_agent_t ldconfig_exec_t:file execute;
+allow zabbix_agent_t user_tmp_t:file open;
+allow zabbix_agent_t tmp_t:dir write;
+allow zabbix_agent_t ntop_port_t:tcp_socket name_connect;
+allow zabbix_agent_t self:process setrlimit;

@@ -1,0 +1,28 @@
+---
+- include: "install.yml"
+
+- name: Use custom systemd file
+  copy:
+    src: zabbix-agent.service
+    dest: /usr/lib/systemd/system/zabbix-agent.service
+  notify:
+    - "systemctl-daemon reload"
+    - "restart zabbix-agent"
+  tags:
+    - zabbixclient
+
+- include: "selinux.yml"
+  when: ansible_selinux is defined and ansible_selinux.status is defined and ansible_selinux.status == "enabled"
+
+- include: "config.yml"
+
+- name: "Force daemon reload if needed (before starting service in next task)"
+  meta: flush_handlers
+
+- name: Ensure zabbix-agent is running and enabled
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+  tags:
+    - zabbixclient

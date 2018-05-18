@@ -1,0 +1,53 @@
+---
+
+- name: copy SELinux enforcement file
+  copy: src=zabbix-agent.te dest=/etc/zabbix/ owner=root group=root mode=0644
+  become: yes
+  tags:
+    - zabbixclient
+
+- name: install policycoreutils
+  yum:
+    name: policycoreutils-python
+    state: present
+  become: yes
+  tags:
+  - zabbixclient
+
+- name: install checkpolicy
+  yum:
+    name: checkpolicy
+    state: present
+  become: yes
+  tags:
+  - zabbixclient
+
+- name: create SELinux policy module from enforcement file
+  command: bash -c "checkmodule -M -m -o /etc/zabbix/zabbix-agent.mod /etc/zabbix/zabbix-agent.te"
+  changed_when: False
+  become: yes
+  tags:
+    - zabbixclient
+
+- name: compile SELinux policy module
+  command: bash -c "semodule_package -o /etc/zabbix/zabbix-agent.pp -m /etc/zabbix/zabbix-agent.mod"
+  changed_when: False
+  become: yes
+  tags:
+    - zabbixclient
+
+- name: check if new SELinux policy has been loaded
+  command: bash -c "semodule -l | grep zabbix-agent | wc -l"
+  register: semodule_loaded
+  changed_when: False
+  become: yes
+  tags:
+    - zabbixclient
+
+- name: Enable SELinux policy to allow zabbix agent to make tcp connection
+  command: semodule -i /etc/zabbix/zabbix-agent.pp
+  changed_when: False
+  become: yes
+  ignore_errors: yes
+  tags:
+    - zabbixclient

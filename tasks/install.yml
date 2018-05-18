@@ -1,0 +1,8 @@
+---
+- name: install zabbix agent
+  yum:
+    name: zabbix-agent
+    state: installed
+    enablerepo: zabbix
+  tags:
+    - zabbixclient

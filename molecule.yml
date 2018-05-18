@@ -1,0 +1,41 @@
+---
+dependency:
+  name: galaxy
+  requirements_file: requirements.yml
+driver:
+#  name: vagrant
+  name: docker
+vagrant:
+  platforms:
+    - name: centos/7
+      box: centos/7
+  providers:
+    - name: virtualbox
+      type: virtualbox
+      environment:
+        http_proxy: ${http_proxy}
+      options:
+        memory: 512
+        cpus: 2
+  instances:
+    - name: temp
+      ansible_groups:
+        - group1
+
+docker:
+  containers:
+    - name: zabbixagent-role-test-${BRANCH_NAME}-${BUILD_NUMBER}
+      image: centos/systemd
+      image_version: latest
+      build_image: yes
+      privileged: yes
+      cap_add:
+        - SYS_ADMIN
+      environment:
+        http_proxy: ${http_proxy}
+
+verifier:
+  name: testinfra
+
+ansible:
+  playbook: tests/playbook.yml
